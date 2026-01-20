@@ -6,6 +6,7 @@
     <title>Stock Lookup Tool</title>
     <meta name="description" content="Look up stock prices and recent news for publicly traded companies">
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📈</text></svg>">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         * {
             box-sizing: border-box;
@@ -264,6 +265,74 @@
         .news-section {
             border-top: 1px solid rgba(255, 255, 255, 0.1);
             padding-top: 24px;
+        }
+
+        .chart-section {
+            margin-bottom: 24px;
+            padding-bottom: 24px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .chart-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .chart-header h3 {
+            font-size: 1.1rem;
+            color: #fff;
+        }
+
+        .chart-intervals {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+
+        .interval-btn {
+            padding: 6px 12px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            background: rgba(255, 255, 255, 0.05);
+            color: #8892b0;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .interval-btn:hover {
+            background: rgba(100, 255, 218, 0.1);
+            border-color: rgba(100, 255, 218, 0.3);
+            color: #64ffda;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .interval-btn.active {
+            background: rgba(100, 255, 218, 0.2);
+            border-color: #64ffda;
+            color: #64ffda;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 250px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 12px;
+            padding: 16px;
+        }
+
+        .chart-loading {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            color: #8892b0;
         }
 
         .news-header {
@@ -608,6 +677,177 @@
     <script>
         const FINNHUB_API_KEY = 'd5nj9g9r01ql6sfrt8tgd5nj9g9r01ql6sfrt8u0';
         let searchTimeout = null;
+        
+        // Store chart instances to destroy them before creating new ones
+        const chartInstances = {};
+
+        async function loadChart(symbol, index, interval) {
+            const container = document.getElementById(`chartContainer${index}`);
+            
+            // Update active button
+            const buttons = container.parentElement.querySelectorAll('.interval-btn');
+            buttons.forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            // Show loading
+            container.innerHTML = '<div class="chart-loading">Loading chart...</div>';
+            
+            // Calculate date range based on interval
+            const now = Math.floor(Date.now() / 1000);
+            let fromTime, resolution;
+            
+            switch(interval) {
+                case '1D':
+                    fromTime = now - (24 * 60 * 60);
+                    resolution = '5';
+                    break;
+                case '5D':
+                    fromTime = now - (5 * 24 * 60 * 60);
+                    resolution = '15';
+                    break;
+                case '1M':
+                    fromTime = now - (30 * 24 * 60 * 60);
+                    resolution = '60';
+                    break;
+                case '6M':
+                    fromTime = now - (180 * 24 * 60 * 60);
+                    resolution = 'D';
+                    break;
+                case 'YTD':
+                    const startOfYear = new Date(new Date().getFullYear(), 0, 1);
+                    fromTime = Math.floor(startOfYear.getTime() / 1000);
+                    resolution = 'D';
+                    break;
+                case '1Y':
+                    fromTime = now - (365 * 24 * 60 * 60);
+                    resolution = 'D';
+                    break;
+                case '5Y':
+                    fromTime = now - (5 * 365 * 24 * 60 * 60);
+                    resolution = 'W';
+                    break;
+                default:
+                    fromTime = now - (30 * 24 * 60 * 60);
+                    resolution = 'D';
+            }
+            
+            try {
+                const response = await fetch(`https://finnhub.io/api/v1/stock/candle?symbol=${symbol}&resolution=${resolution}&from=${fromTime}&to=${now}&token=${FINNHUB_API_KEY}`);
+                const data = await response.json();
+                
+                if (data.s === 'no_data' || !data.c || data.c.length === 0) {
+                    container.innerHTML = '<div class="chart-loading">No data available for this timeframe</div>';
+                    return;
+                }
+                
+                // Recreate canvas
+                container.innerHTML = `<canvas id="chart${index}"></canvas>`;
+                const newCanvas = document.getElementById(`chart${index}`);
+                
+                // Destroy existing chart if any
+                if (chartInstances[index]) {
+                    chartInstances[index].destroy();
+                }
+                
+                // Format labels based on interval
+                const labels = data.t.map(timestamp => {
+                    const date = new Date(timestamp * 1000);
+                    if (interval === '1D' || interval === '5D') {
+                        return date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+                    } else if (interval === '5Y') {
+                        return date.toLocaleDateString('en-US', { year: 'numeric', month: 'short' });
+                    } else {
+                        return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+                    }
+                });
+                
+                // Determine color based on price change
+                const firstPrice = data.c[0];
+                const lastPrice = data.c[data.c.length - 1];
+                const isPositive = lastPrice >= firstPrice;
+                const lineColor = isPositive ? '#64ffda' : '#ff6b6b';
+                const bgColor = isPositive ? 'rgba(100, 255, 218, 0.1)' : 'rgba(255, 107, 107, 0.1)';
+                
+                // Create chart
+                chartInstances[index] = new Chart(newCanvas, {
+                    type: 'line',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: 'Price',
+                            data: data.c,
+                            borderColor: lineColor,
+                            backgroundColor: bgColor,
+                            borderWidth: 2,
+                            fill: true,
+                            tension: 0.1,
+                            pointRadius: 0,
+                            pointHoverRadius: 4,
+                            pointHoverBackgroundColor: lineColor
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        interaction: {
+                            intersect: false,
+                            mode: 'index'
+                        },
+                        plugins: {
+                            legend: {
+                                display: false
+                            },
+                            tooltip: {
+                                backgroundColor: 'rgba(26, 26, 46, 0.9)',
+                                titleColor: '#fff',
+                                bodyColor: '#64ffda',
+                                borderColor: 'rgba(255, 255, 255, 0.1)',
+                                borderWidth: 1,
+                                callbacks: {
+                                    label: function(context) {
+                                        return '$' + context.parsed.y.toFixed(2);
+                                    }
+                                }
+                            }
+                        },
+                        scales: {
+                            x: {
+                                display: true,
+                                grid: {
+                                    color: 'rgba(255, 255, 255, 0.05)'
+                                },
+                                ticks: {
+                                    color: '#8892b0',
+                                    maxTicksLimit: 6,
+                                    font: {
+                                        size: 10
+                                    }
+                                }
+                            },
+                            y: {
+                                display: true,
+                                grid: {
+                                    color: 'rgba(255, 255, 255, 0.05)'
+                                },
+                                ticks: {
+                                    color: '#8892b0',
+                                    font: {
+                                        size: 10
+                                    },
+                                    callback: function(value) {
+                                        return '$' + value.toFixed(2);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+                
+            } catch (error) {
+                container.innerHTML = '<div class="chart-loading">Error loading chart data</div>';
+                console.error('Chart error:', error);
+            }
+        }
 
         // Symbol search for autocomplete
         async function searchSymbol(query) {
@@ -913,6 +1153,23 @@
                                 <div class="detail-value">$${lowPrice}</div>
                             </div>
                         </div>
+                        <div class="chart-section">
+                            <div class="chart-header">
+                                <h3>📊 Price Chart</h3>
+                                <div class="chart-intervals">
+                                    <button class="interval-btn active" onclick="loadChart('${symbol}', ${index}, '1D')">1D</button>
+                                    <button class="interval-btn" onclick="loadChart('${symbol}', ${index}, '5D')">5D</button>
+                                    <button class="interval-btn" onclick="loadChart('${symbol}', ${index}, '1M')">1M</button>
+                                    <button class="interval-btn" onclick="loadChart('${symbol}', ${index}, '6M')">6M</button>
+                                    <button class="interval-btn" onclick="loadChart('${symbol}', ${index}, 'YTD')">YTD</button>
+                                    <button class="interval-btn" onclick="loadChart('${symbol}', ${index}, '1Y')">1Y</button>
+                                    <button class="interval-btn" onclick="loadChart('${symbol}', ${index}, '5Y')">5Y</button>
+                                </div>
+                            </div>
+                            <div class="chart-container" id="chartContainer${index}">
+                                <canvas id="chart${index}"></canvas>
+                            </div>
+                        </div>
                         <div class="news-section">
                             <div class="news-header">
                                 <h3>📰 Recent News</h3>
@@ -937,6 +1194,188 @@
             });
 
             resultsDiv.innerHTML = html;
+            
+            // Load charts for each stock with 1M default
+            results.forEach((result, index) => {
+                setTimeout(() => {
+                    // Simulate click on 1M button to load chart
+                    const container = document.getElementById(`chartContainer${index}`);
+                    if (container) {
+                        loadChartDirect(result.symbol, index, '1M');
+                    }
+                }, index * 300); // Stagger requests to avoid rate limiting
+            });
+        }
+        
+        // Direct chart load without event (for initial load)
+        async function loadChartDirect(symbol, index, interval) {
+            const container = document.getElementById(`chartContainer${index}`);
+            
+            // Update active button
+            const buttons = container.parentElement.querySelectorAll('.interval-btn');
+            buttons.forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.textContent === interval) btn.classList.add('active');
+            });
+            
+            // Show loading
+            container.innerHTML = '<div class="chart-loading">Loading chart...</div>';
+            
+            // Calculate date range based on interval
+            const now = Math.floor(Date.now() / 1000);
+            let fromTime, resolution;
+            
+            switch(interval) {
+                case '1D':
+                    fromTime = now - (24 * 60 * 60);
+                    resolution = '5';
+                    break;
+                case '5D':
+                    fromTime = now - (5 * 24 * 60 * 60);
+                    resolution = '15';
+                    break;
+                case '1M':
+                    fromTime = now - (30 * 24 * 60 * 60);
+                    resolution = '60';
+                    break;
+                case '6M':
+                    fromTime = now - (180 * 24 * 60 * 60);
+                    resolution = 'D';
+                    break;
+                case 'YTD':
+                    const startOfYear = new Date(new Date().getFullYear(), 0, 1);
+                    fromTime = Math.floor(startOfYear.getTime() / 1000);
+                    resolution = 'D';
+                    break;
+                case '1Y':
+                    fromTime = now - (365 * 24 * 60 * 60);
+                    resolution = 'D';
+                    break;
+                case '5Y':
+                    fromTime = now - (5 * 365 * 24 * 60 * 60);
+                    resolution = 'W';
+                    break;
+                default:
+                    fromTime = now - (30 * 24 * 60 * 60);
+                    resolution = 'D';
+            }
+            
+            try {
+                const response = await fetch(`https://finnhub.io/api/v1/stock/candle?symbol=${symbol}&resolution=${resolution}&from=${fromTime}&to=${now}&token=${FINNHUB_API_KEY}`);
+                const data = await response.json();
+                
+                if (data.s === 'no_data' || !data.c || data.c.length === 0) {
+                    container.innerHTML = '<div class="chart-loading">No data available for this timeframe</div>';
+                    return;
+                }
+                
+                // Recreate canvas
+                container.innerHTML = `<canvas id="chart${index}"></canvas>`;
+                const newCanvas = document.getElementById(`chart${index}`);
+                
+                // Destroy existing chart if any
+                if (chartInstances[index]) {
+                    chartInstances[index].destroy();
+                }
+                
+                // Format labels based on interval
+                const labels = data.t.map(timestamp => {
+                    const date = new Date(timestamp * 1000);
+                    if (interval === '1D' || interval === '5D') {
+                        return date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+                    } else if (interval === '5Y') {
+                        return date.toLocaleDateString('en-US', { year: 'numeric', month: 'short' });
+                    } else {
+                        return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+                    }
+                });
+                
+                // Determine color based on price change
+                const firstPrice = data.c[0];
+                const lastPrice = data.c[data.c.length - 1];
+                const isPositive = lastPrice >= firstPrice;
+                const lineColor = isPositive ? '#64ffda' : '#ff6b6b';
+                const bgColor = isPositive ? 'rgba(100, 255, 218, 0.1)' : 'rgba(255, 107, 107, 0.1)';
+                
+                // Create chart
+                chartInstances[index] = new Chart(newCanvas, {
+                    type: 'line',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: 'Price',
+                            data: data.c,
+                            borderColor: lineColor,
+                            backgroundColor: bgColor,
+                            borderWidth: 2,
+                            fill: true,
+                            tension: 0.1,
+                            pointRadius: 0,
+                            pointHoverRadius: 4,
+                            pointHoverBackgroundColor: lineColor
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        interaction: {
+                            intersect: false,
+                            mode: 'index'
+                        },
+                        plugins: {
+                            legend: {
+                                display: false
+                            },
+                            tooltip: {
+                                backgroundColor: 'rgba(26, 26, 46, 0.9)',
+                                titleColor: '#fff',
+                                bodyColor: '#64ffda',
+                                borderColor: 'rgba(255, 255, 255, 0.1)',
+                                borderWidth: 1,
+                                callbacks: {
+                                    label: function(context) {
+                                        return '$' + context.parsed.y.toFixed(2);
+                                    }
+                                }
+                            }
+                        },
+                        scales: {
+                            x: {
+                                display: true,
+                                grid: {
+                                    color: 'rgba(255, 255, 255, 0.05)'
+                                },
+                                ticks: {
+                                    color: '#8892b0',
+                                    maxTicksLimit: 6,
+                                    font: {
+                                        size: 10
+                                    }
+                                }
+                            },
+                            y: {
+                                display: true,
+                                grid: {
+                                    color: 'rgba(255, 255, 255, 0.05)'
+                                },
+                                ticks: {
+                                    color: '#8892b0',
+                                    font: {
+                                        size: 10
+                                    },
+                                    callback: function(value) {
+                                        return '$' + value.toFixed(2);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+                
+            } catch (error) {
+                container.innerHTML = '<div class="chart-loading">Error loading chart data</div>';
+                console.error('Chart error:', error);
+            }
         }
 
         function toggleNews(index) {
