@@ -991,7 +991,7 @@
                 // Build news HTML
                 let newsHTML = '';
                 if (news && news.length > 0) {
-                    const recentNews = news.slice(0, 10);
+                    const recentNews = news.slice(0, 5);
                     newsHTML = recentNews.map(article => {
                         const date = new Date(article.datetime * 1000).toLocaleDateString('en-US', {
                             month: 'short',
