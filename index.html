@@ -7,7 +7,6 @@
     <meta name="description" content="Look up stock prices and recent news for publicly traded companies">
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📈</text></svg>">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
     <style>
         * {
             box-sizing: border-box;
@@ -489,6 +488,124 @@
             box-shadow: none;
         }
 
+        .price-history-controls {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-left: auto;
+        }
+
+        .price-history-input {
+            width: 70px;
+            padding: 8px 10px;
+            font-size: 0.9rem;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 6px;
+            background: rgba(255, 255, 255, 0.05);
+            color: #fff;
+            text-align: center;
+        }
+
+        .price-history-input:focus {
+            outline: none;
+            border-color: #64ffda;
+        }
+
+        .price-history-select {
+            padding: 8px 12px;
+            font-size: 0.9rem;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 6px;
+            background: rgba(255, 255, 255, 0.05);
+            color: #fff;
+            cursor: pointer;
+        }
+
+        .price-history-select:focus {
+            outline: none;
+            border-color: #64ffda;
+        }
+
+        .price-history-select option {
+            background: #1a1a2e;
+            color: #fff;
+        }
+
+        .price-history-btn {
+            padding: 8px 16px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            background: linear-gradient(135deg, #64ffda 0%, #48c9b0 100%);
+            color: #1a1a2e;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .price-history-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 2px 10px rgba(100, 255, 218, 0.3);
+        }
+
+        .price-history-container {
+            margin-top: 16px;
+        }
+
+        .price-chart-wrapper {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 16px;
+            height: 250px;
+        }
+
+        .price-table-wrapper {
+            max-height: 300px;
+            overflow-y: auto;
+            border-radius: 12px;
+            background: rgba(0, 0, 0, 0.2);
+        }
+
+        .price-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9rem;
+        }
+
+        .price-table th {
+            position: sticky;
+            top: 0;
+            background: #1a1a2e;
+            padding: 12px 16px;
+            text-align: left;
+            color: #64ffda;
+            font-weight: 600;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .price-table td {
+            padding: 10px 16px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            color: #e0e0e0;
+        }
+
+        .price-table tr:hover {
+            background: rgba(100, 255, 218, 0.05);
+        }
+
+        .price-table .price-up {
+            color: #64ffda;
+        }
+
+        .price-table .price-down {
+            color: #ff6b6b;
+        }
+
+        .price-table .change-cell {
+            font-weight: 600;
+        }
+
         .error-box {
             background: rgba(255, 107, 107, 0.1);
             border: 1px solid rgba(255, 107, 107, 0.3);
@@ -680,161 +797,6 @@
         let searchTimeout = null;
         
         // Store chart instances to destroy them before creating new ones
-        const chartInstances = {};
-
-        async function loadChart(symbol, index, interval) {
-            const container = document.getElementById(`chartContainer${index}`);
-            
-            // Update active button
-            const buttons = container.parentElement.querySelectorAll('.interval-btn');
-            buttons.forEach(btn => btn.classList.remove('active'));
-            event.target.classList.add('active');
-            
-            // Show loading
-            container.innerHTML = '<div class="chart-loading">Loading chart...</div>';
-            
-            // Calculate date range based on interval - all use daily resolution
-            const now = Math.floor(Date.now() / 1000);
-            let fromTime;
-            const resolution = 'D'; // Daily resolution works reliably on free tier
-            
-            switch(interval) {
-                case '1W':
-                    fromTime = now - (7 * 24 * 60 * 60);
-                    break;
-                case '1M':
-                    fromTime = now - (30 * 24 * 60 * 60);
-                    break;
-                case '3M':
-                    fromTime = now - (90 * 24 * 60 * 60);
-                    break;
-                case '6M':
-                    fromTime = now - (180 * 24 * 60 * 60);
-                    break;
-                case '1Y':
-                    fromTime = now - (365 * 24 * 60 * 60);
-                    break;
-                default:
-                    fromTime = now - (30 * 24 * 60 * 60);
-            }
-            
-            try {
-                const response = await fetch(`https://finnhub.io/api/v1/stock/candle?symbol=${symbol}&resolution=${resolution}&from=${fromTime}&to=${now}&token=${FINNHUB_API_KEY}`);
-                const data = await response.json();
-                
-                if (data.s === 'no_data' || !data.c || data.c.length === 0) {
-                    container.innerHTML = '<div class="chart-loading">No data available for this timeframe</div>';
-                    return;
-                }
-                
-                // Recreate canvas
-                container.innerHTML = `<canvas id="chart${index}"></canvas>`;
-                const newCanvas = document.getElementById(`chart${index}`);
-                
-                // Destroy existing chart if any
-                if (chartInstances[index]) {
-                    chartInstances[index].destroy();
-                }
-                
-                // Format labels based on interval
-                const labels = data.t.map(timestamp => {
-                    const date = new Date(timestamp * 1000);
-                    if (interval === '1W') {
-                        return date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
-                    } else if (interval === '1Y') {
-                        return date.toLocaleDateString('en-US', { year: 'numeric', month: 'short' });
-                    } else {
-                        return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-                    }
-                });
-                
-                // Determine color based on price change
-                const firstPrice = data.c[0];
-                const lastPrice = data.c[data.c.length - 1];
-                const isPositive = lastPrice >= firstPrice;
-                const lineColor = isPositive ? '#64ffda' : '#ff6b6b';
-                const bgColor = isPositive ? 'rgba(100, 255, 218, 0.1)' : 'rgba(255, 107, 107, 0.1)';
-                
-                // Create chart
-                chartInstances[index] = new Chart(newCanvas, {
-                    type: 'line',
-                    data: {
-                        labels: labels,
-                        datasets: [{
-                            label: 'Price',
-                            data: data.c,
-                            borderColor: lineColor,
-                            backgroundColor: bgColor,
-                            borderWidth: 2,
-                            fill: true,
-                            tension: 0.1,
-                            pointRadius: 0,
-                            pointHoverRadius: 4,
-                            pointHoverBackgroundColor: lineColor
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        interaction: {
-                            intersect: false,
-                            mode: 'index'
-                        },
-                        plugins: {
-                            legend: {
-                                display: false
-                            },
-                            tooltip: {
-                                backgroundColor: 'rgba(26, 26, 46, 0.9)',
-                                titleColor: '#fff',
-                                bodyColor: '#64ffda',
-                                borderColor: 'rgba(255, 255, 255, 0.1)',
-                                borderWidth: 1,
-                                callbacks: {
-                                    label: function(context) {
-                                        return '$' + context.parsed.y.toFixed(2);
-                                    }
-                                }
-                            }
-                        },
-                        scales: {
-                            x: {
-                                display: true,
-                                grid: {
-                                    color: 'rgba(255, 255, 255, 0.05)'
-                                },
-                                ticks: {
-                                    color: '#8892b0',
-                                    maxTicksLimit: 6,
-                                    font: {
-                                        size: 10
-                                    }
-                                }
-                            },
-                            y: {
-                                display: true,
-                                grid: {
-                                    color: 'rgba(255, 255, 255, 0.05)'
-                                },
-                                ticks: {
-                                    color: '#8892b0',
-                                    font: {
-                                        size: 10
-                                    },
-                                    callback: function(value) {
-                                        return '$' + value.toFixed(2);
-                                    }
-                                }
-                            }
-                        }
-                    }
-                });
-                
-            } catch (error) {
-                container.innerHTML = '<div class="chart-loading">Error loading chart data</div>';
-                console.error('Chart error:', error);
-            }
-        }
 
         // Symbol search for autocomplete
         async function searchSymbol(query) {
@@ -1142,12 +1104,18 @@
                         </div>
                         <div class="chart-section">
                             <div class="chart-header">
-                                <h3>📊 Price Chart</h3>
-                            </div>
-                            <div class="chart-container" style="height: 350px;">
-                                <div class="tradingview-widget-container" style="height: 100%; width: 100%;">
-                                    <div id="tradingview_${index}" style="height: 100%; width: 100%;"></div>
+                                <h3>📊 Price History</h3>
+                                <div class="price-history-controls">
+                                    <input type="number" id="priceHistoryValue${index}" class="price-history-input" value="30" min="1" max="365">
+                                    <select id="priceHistoryUnit${index}" class="price-history-select">
+                                        <option value="days" selected>Days</option>
+                                        <option value="months">Months</option>
+                                    </select>
+                                    <button class="price-history-btn" onclick="loadPriceHistory('${symbol}', ${index})">Load</button>
                                 </div>
+                            </div>
+                            <div class="price-history-container" id="priceHistoryContainer${index}">
+                                <div class="chart-loading">Select timeframe and click Load</div>
                             </div>
                         </div>
                         <div class="news-section">
@@ -1174,73 +1142,34 @@
             });
 
             resultsDiv.innerHTML = html;
-            
-            // Load TradingView charts for each stock
-            results.forEach((result, index) => {
-                setTimeout(() => {
-                    if (typeof TradingView !== 'undefined') {
-                        new TradingView.widget({
-                            "autosize": true,
-                            "symbol": result.symbol,
-                            "interval": "D",
-                            "timezone": "America/New_York",
-                            "theme": "dark",
-                            "style": "3",
-                            "locale": "en",
-                            "toolbar_bg": "#1a1a2e",
-                            "enable_publishing": false,
-                            "hide_top_toolbar": false,
-                            "hide_legend": true,
-                            "save_image": false,
-                            "container_id": "tradingview_" + index,
-                            "backgroundColor": "rgba(0, 0, 0, 0)"
-                        });
-                    }
-                }, index * 100);
-            });
         }
-        
-        // Direct chart load without event (for initial load)
-        async function loadChartDirect(symbol, index, interval) {
-            const container = document.getElementById(`chartContainer${index}`);
+
+        // Store chart instances
+        const chartInstances = {};
+
+        async function loadPriceHistory(symbol, index) {
+            const valueInput = document.getElementById(`priceHistoryValue${index}`);
+            const unitSelect = document.getElementById(`priceHistoryUnit${index}`);
+            const container = document.getElementById(`priceHistoryContainer${index}`);
             
-            // Update active button
-            const buttons = container.parentElement.querySelectorAll('.interval-btn');
-            buttons.forEach(btn => {
-                btn.classList.remove('active');
-                if (btn.textContent === interval) btn.classList.add('active');
-            });
+            const value = parseInt(valueInput.value) || 30;
+            const unit = unitSelect.value;
             
-            // Show loading
-            container.innerHTML = '<div class="chart-loading">Loading chart...</div>';
-            
-            // Calculate date range based on interval - all use daily resolution
+            // Calculate the from date
             const now = Math.floor(Date.now() / 1000);
             let fromTime;
-            const resolution = 'D'; // Daily resolution works reliably on free tier
             
-            switch(interval) {
-                case '1W':
-                    fromTime = now - (7 * 24 * 60 * 60);
-                    break;
-                case '1M':
-                    fromTime = now - (30 * 24 * 60 * 60);
-                    break;
-                case '3M':
-                    fromTime = now - (90 * 24 * 60 * 60);
-                    break;
-                case '6M':
-                    fromTime = now - (180 * 24 * 60 * 60);
-                    break;
-                case '1Y':
-                    fromTime = now - (365 * 24 * 60 * 60);
-                    break;
-                default:
-                    fromTime = now - (30 * 24 * 60 * 60);
+            if (unit === 'days') {
+                fromTime = now - (value * 24 * 60 * 60);
+            } else if (unit === 'months') {
+                fromTime = now - (value * 30 * 24 * 60 * 60);
             }
             
+            // Show loading
+            container.innerHTML = '<div class="chart-loading">Loading price history...</div>';
+            
             try {
-                const response = await fetch(`https://finnhub.io/api/v1/stock/candle?symbol=${symbol}&resolution=${resolution}&from=${fromTime}&to=${now}&token=${FINNHUB_API_KEY}`);
+                const response = await fetch(`https://finnhub.io/api/v1/stock/candle?symbol=${symbol}&resolution=D&from=${fromTime}&to=${now}&token=${FINNHUB_API_KEY}`);
                 const data = await response.json();
                 
                 if (data.s === 'no_data' || !data.c || data.c.length === 0) {
@@ -1248,42 +1177,102 @@
                     return;
                 }
                 
-                // Recreate canvas
-                container.innerHTML = `<canvas id="chart${index}"></canvas>`;
-                const newCanvas = document.getElementById(`chart${index}`);
+                // Process data for table and chart
+                const prices = [];
+                for (let i = 0; i < data.t.length; i++) {
+                    const date = new Date(data.t[i] * 1000);
+                    const close = data.c[i];
+                    const prevClose = i > 0 ? data.c[i - 1] : close;
+                    const change = close - prevClose;
+                    const changePercent = ((change / prevClose) * 100);
+                    
+                    prices.push({
+                        date: date,
+                        dateStr: date.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }),
+                        open: data.o[i],
+                        high: data.h[i],
+                        low: data.l[i],
+                        close: close,
+                        volume: data.v[i],
+                        change: change,
+                        changePercent: changePercent
+                    });
+                }
+                
+                // Reverse to show most recent first in table
+                const tableData = [...prices].reverse();
+                
+                // Build HTML
+                let html = `
+                    <div class="price-chart-wrapper">
+                        <canvas id="priceChart${index}"></canvas>
+                    </div>
+                    <div class="price-table-wrapper">
+                        <table class="price-table">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Close</th>
+                                    <th>Open</th>
+                                    <th>High</th>
+                                    <th>Low</th>
+                                    <th>Change</th>
+                                    <th>% Change</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                `;
+                
+                tableData.forEach(p => {
+                    const changeClass = p.change >= 0 ? 'price-up' : 'price-down';
+                    const changeSymbol = p.change >= 0 ? '+' : '';
+                    html += `
+                        <tr>
+                            <td>${p.dateStr}</td>
+                            <td>$${p.close.toFixed(2)}</td>
+                            <td>$${p.open.toFixed(2)}</td>
+                            <td>$${p.high.toFixed(2)}</td>
+                            <td>$${p.low.toFixed(2)}</td>
+                            <td class="change-cell ${changeClass}">${changeSymbol}$${p.change.toFixed(2)}</td>
+                            <td class="change-cell ${changeClass}">${changeSymbol}${p.changePercent.toFixed(2)}%</td>
+                        </tr>
+                    `;
+                });
+                
+                html += `
+                            </tbody>
+                        </table>
+                    </div>
+                `;
+                
+                container.innerHTML = html;
+                
+                // Create chart
+                const canvas = document.getElementById(`priceChart${index}`);
                 
                 // Destroy existing chart if any
                 if (chartInstances[index]) {
                     chartInstances[index].destroy();
                 }
                 
-                // Format labels based on interval
-                const labels = data.t.map(timestamp => {
-                    const date = new Date(timestamp * 1000);
-                    if (interval === '1W') {
-                        return date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
-                    } else if (interval === '1Y') {
-                        return date.toLocaleDateString('en-US', { year: 'numeric', month: 'short' });
-                    } else {
-                        return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-                    }
-                });
+                // Format labels
+                const labels = prices.map(p => p.date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }));
+                const closePrices = prices.map(p => p.close);
                 
-                // Determine color based on price change
-                const firstPrice = data.c[0];
-                const lastPrice = data.c[data.c.length - 1];
+                // Determine color based on overall trend
+                const firstPrice = closePrices[0];
+                const lastPrice = closePrices[closePrices.length - 1];
                 const isPositive = lastPrice >= firstPrice;
                 const lineColor = isPositive ? '#64ffda' : '#ff6b6b';
                 const bgColor = isPositive ? 'rgba(100, 255, 218, 0.1)' : 'rgba(255, 107, 107, 0.1)';
                 
-                // Create chart
-                chartInstances[index] = new Chart(newCanvas, {
+                chartInstances[index] = new Chart(canvas, {
                     type: 'line',
                     data: {
                         labels: labels,
                         datasets: [{
-                            label: 'Price',
-                            data: data.c,
+                            label: 'Close Price',
+                            data: closePrices,
                             borderColor: lineColor,
                             backgroundColor: bgColor,
                             borderWidth: 2,
@@ -1313,7 +1302,7 @@
                                 borderWidth: 1,
                                 callbacks: {
                                     label: function(context) {
-                                        return '$' + context.parsed.y.toFixed(2);
+                                        return 'Close: $' + context.parsed.y.toFixed(2);
                                     }
                                 }
                             }
@@ -1326,7 +1315,7 @@
                                 },
                                 ticks: {
                                     color: '#8892b0',
-                                    maxTicksLimit: 6,
+                                    maxTicksLimit: 8,
                                     font: {
                                         size: 10
                                     }
@@ -1352,8 +1341,8 @@
                 });
                 
             } catch (error) {
-                container.innerHTML = '<div class="chart-loading">Error loading chart data</div>';
-                console.error('Chart error:', error);
+                container.innerHTML = '<div class="chart-loading">Error loading price history</div>';
+                console.error('Price history error:', error);
             }
         }
 
