@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stock Lookup Tool</title>
+    <meta name="description" content="Look up stock prices and recent news for publicly traded companies">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📈</text></svg>">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            min-height: 100vh;
+            padding: 40px 20px;
+            color: #e0e0e0;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        h1 {
+            font-size: 2.4rem;
+            color: #fff;
+            margin-bottom: 8px;
+        }
+
+        .subtitle {
+            color: #8892b0;
+            font-size: 1.1rem;
+        }
+
+        .search-section {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 32px;
+            margin-bottom: 24px;
+        }
+
+        .search-box {
+            display: flex;
+            gap: 12px;
+        }
+
+        input[type="text"] {
+            flex: 1;
+            padding: 16px 20px;
+            font-size: 1.1rem;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.05);
+            color: #fff;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        input[type="text"]::placeholder {
+            color: #8892b0;
+        }
+
+        input[type="text"]:focus {
+            outline: none;
+            border-color: #64ffda;
+            box-shadow: 0 0 0 4px rgba(100, 255, 218, 0.15);
+        }
+
+        button {
+            padding: 16px 32px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            background: linear-gradient(135deg, #64ffda 0%, #48c9b0 100%);
+            color: #1a1a2e;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: transform 0.1s, box-shadow 0.2s;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 20px rgba(100, 255, 218, 0.3);
+        }
+
+        button:active {
+            transform: scale(0.98);
+        }
+
+        button:disabled {
+            background: #4a5568;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .quick-links {
+            margin-top: 16px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .quick-link {
+            padding: 8px 16px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            font-size: 0.9rem;
+            color: #8892b0;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .quick-link:hover {
+            background: rgba(100, 255, 218, 0.1);
+            border-color: #64ffda;
+            color: #64ffda;
+        }
+
+        .results {
+            display: none;
+        }
+
+        .results.visible {
+            display: block;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 60px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid rgba(255, 255, 255, 0.1);
+            border-top-color: #64ffda;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 16px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .stock-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 32px;
+            margin-bottom: 24px;
+        }
+
+        .stock-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin-bottom: 24px;
+            padding-bottom: 24px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .stock-info h2 {
+            font-size: 1.8rem;
+            color: #fff;
+            margin-bottom: 4px;
+        }
+
+        .stock-symbol {
+            display: inline-block;
+            padding: 4px 12px;
+            background: rgba(100, 255, 218, 0.1);
+            color: #64ffda;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-right: 8px;
+        }
+
+        .stock-exchange {
+            color: #8892b0;
+            font-size: 0.9rem;
+        }
+
+        .price-container {
+            text-align: right;
+        }
+
+        .current-price {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #fff;
+        }
+
+        .price-change {
+            font-size: 1.1rem;
+            margin-top: 4px;
+        }
+
+        .price-change.positive {
+            color: #64ffda;
+        }
+
+        .price-change.negative {
+            color: #ff6b6b;
+        }
+
+        .stock-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 16px;
+        }
+
+        .detail-item {
+            background: rgba(255, 255, 255, 0.03);
+            padding: 16px;
+            border-radius: 12px;
+        }
+
+        .detail-label {
+            font-size: 0.85rem;
+            color: #8892b0;
+            margin-bottom: 4px;
+        }
+
+        .detail-value {
+            font-size: 1.1rem;
+            color: #fff;
+            font-weight: 600;
+        }
+
+        .news-section {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 32px;
+        }
+
+        .news-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 24px;
+        }
+
+        .news-header h3 {
+            font-size: 1.3rem;
+            color: #fff;
+        }
+
+        .news-badge {
+            padding: 4px 10px;
+            background: rgba(100, 255, 218, 0.1);
+            color: #64ffda;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .news-item {
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 16px;
+            transition: transform 0.2s, background 0.2s;
+        }
+
+        .news-item:hover {
+            transform: translateX(4px);
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .news-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .news-item a {
+            text-decoration: none;
+        }
+
+        .news-title {
+            font-size: 1.1rem;
+            color: #fff;
+            margin-bottom: 8px;
+            line-height: 1.4;
+        }
+
+        .news-title:hover {
+            color: #64ffda;
+        }
+
+        .news-meta {
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+            font-size: 0.85rem;
+            color: #8892b0;
+        }
+
+        .news-source {
+            color: #64ffda;
+        }
+
+        .news-summary {
+            margin-top: 12px;
+            font-size: 0.95rem;
+            color: #a0aec0;
+            line-height: 1.6;
+        }
+
+        .no-news {
+            text-align: center;
+            padding: 40px;
+            color: #8892b0;
+        }
+
+        .error-box {
+            background: rgba(255, 107, 107, 0.1);
+            border: 1px solid rgba(255, 107, 107, 0.3);
+            border-radius: 12px;
+            padding: 24px;
+            text-align: center;
+            color: #ff6b6b;
+        }
+
+        .disclaimer {
+            margin-top: 32px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 12px;
+            font-size: 0.85rem;
+            color: #8892b0;
+            line-height: 1.6;
+        }
+
+        .api-note {
+            margin-top: 16px;
+            padding: 16px;
+            background: rgba(100, 255, 218, 0.05);
+            border: 1px solid rgba(100, 255, 218, 0.1);
+            border-radius: 12px;
+            font-size: 0.85rem;
+            color: #64ffda;
+        }
+
+        @media (max-width: 600px) {
+            .search-box {
+                flex-direction: column;
+            }
+            
+            button {
+                width: 100%;
+            }
+
+            h1 {
+                font-size: 1.8rem;
+            }
+
+            .stock-header {
+                flex-direction: column;
+            }
+
+            .price-container {
+                text-align: left;
+            }
+
+            .current-price {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>📈 Stock Lookup</h1>
+            <p class="subtitle">Search by company name or stock symbol</p>
+        </header>
+
+        <div class="search-section">
+            <div class="search-box">
+                <input type="text" id="searchInput" placeholder="Enter company name or symbol (e.g., Apple, AAPL, MSFT)..." autofocus>
+                <button id="searchBtn" onclick="searchStock()">Search</button>
+            </div>
+            <div class="quick-links">
+                <span style="color: #8892b0; font-size: 0.9rem; margin-right: 8px;">Popular:</span>
+                <button class="quick-link" onclick="quickSearch('AAPL')">AAPL</button>
+                <button class="quick-link" onclick="quickSearch('MSFT')">MSFT</button>
+                <button class="quick-link" onclick="quickSearch('GOOGL')">GOOGL</button>
+                <button class="quick-link" onclick="quickSearch('AMZN')">AMZN</button>
+                <button class="quick-link" onclick="quickSearch('TSLA')">TSLA</button>
+                <button class="quick-link" onclick="quickSearch('NVDA')">NVDA</button>
+            </div>
+        </div>
+
+        <div class="results" id="results"></div>
+
+        <div class="disclaimer">
+            <strong>⚠️ Disclaimer:</strong> This tool is for informational purposes only. Stock prices may be delayed. This is not financial advice. Always do your own research and consult with a financial advisor before making investment decisions.
+        </div>
+
+        <div class="api-note">
+            <strong>📡 Data Sources:</strong> Stock data and news from Finnhub API. Data may have a slight delay from real-time values.
+        </div>
+    </div>
+
+    <script>
+        const FINNHUB_API_KEY = 'd5nj6u1r01ql6sfrsr2gd5nj6u1r01ql6sfrsr30';
+
+        async function searchStock() {
+            const input = document.getElementById('searchInput').value.trim().toUpperCase();
+            const resultsDiv = document.getElementById('results');
+            const searchBtn = document.getElementById('searchBtn');
+
+            if (!input) {
+                resultsDiv.classList.remove('visible');
+                return;
+            }
+
+            // Show loading
+            searchBtn.disabled = true;
+            searchBtn.textContent = 'Searching...';
+            resultsDiv.classList.add('visible');
+            resultsDiv.innerHTML = `
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <p>Fetching stock data and news...</p>
+                </div>
+            `;
+
+            try {
+                // Try to get stock quote from Finnhub
+                const quoteResponse = await fetch(`https://finnhub.io/api/v1/quote?symbol=${input}&token=${FINNHUB_API_KEY}`);
+                const quoteData = await quoteResponse.json();
+
+                // Get company profile
+                const profileResponse = await fetch(`https://finnhub.io/api/v1/stock/profile2?symbol=${input}&token=${FINNHUB_API_KEY}`);
+                const profileData = await profileResponse.json();
+
+                // Check if we got valid data
+                if (!quoteData.c || quoteData.c === 0) {
+                    throw new Error('not_found');
+                }
+
+                // Get news from Finnhub (last 7 days)
+                const today = new Date();
+                const weekAgo = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000);
+                const toDate = today.toISOString().split('T')[0];
+                const fromDate = weekAgo.toISOString().split('T')[0];
+
+                const newsResponse = await fetch(`https://finnhub.io/api/v1/company-news?symbol=${input}&from=${fromDate}&to=${toDate}&token=${FINNHUB_API_KEY}`);
+                const newsData = await newsResponse.json();
+
+                displayResults(input, quoteData, profileData, newsData);
+
+            } catch (error) {
+                if (error.message === 'not_found') {
+                    showNotFound(input);
+                } else {
+                    showError(error);
+                }
+            } finally {
+                searchBtn.disabled = false;
+                searchBtn.textContent = 'Search';
+            }
+        }
+
+        function displayResults(symbol, quote, profile, news) {
+            const resultsDiv = document.getElementById('results');
+
+            const companyName = profile.name || symbol;
+            const exchange = profile.exchange || 'N/A';
+            const industry = profile.finnhubIndustry || 'N/A';
+            const logo = profile.logo || '';
+            const weburl = profile.weburl || '';
+
+            const currentPrice = quote.c?.toFixed(2) || 'N/A';
+            const change = quote.d?.toFixed(2) || 0;
+            const changePercent = quote.dp?.toFixed(2) || 0;
+            const highPrice = quote.h?.toFixed(2) || 'N/A';
+            const lowPrice = quote.l?.toFixed(2) || 'N/A';
+            const openPrice = quote.o?.toFixed(2) || 'N/A';
+            const prevClose = quote.pc?.toFixed(2) || 'N/A';
+
+            const isPositive = change >= 0;
+            const changeClass = isPositive ? 'positive' : 'negative';
+            const changeSymbol = isPositive ? '+' : '';
+
+            // Build news HTML
+            let newsHTML = '';
+            if (news && news.length > 0) {
+                const recentNews = news.slice(0, 10); // Show up to 10 articles
+                newsHTML = recentNews.map(article => {
+                    const date = new Date(article.datetime * 1000).toLocaleDateString('en-US', {
+                        month: 'short',
+                        day: 'numeric',
+                        year: 'numeric'
+                    });
+                    const summary = article.summary ? article.summary.substring(0, 200) + '...' : '';
+                    return `
+                        <div class="news-item">
+                            <a href="${article.url}" target="_blank" rel="noopener">
+                                <h4 class="news-title">${escapeHtml(article.headline)}</h4>
+                            </a>
+                            <div class="news-meta">
+                                <span class="news-source">${escapeHtml(article.source)}</span>
+                                <span class="news-date">📅 ${date}</span>
+                            </div>
+                            ${summary ? `<p class="news-summary">${escapeHtml(summary)}</p>` : ''}
+                        </div>
+                    `;
+                }).join('');
+            } else {
+                newsHTML = `
+                    <div class="no-news">
+                        <p>No news articles found for ${symbol} in the last 7 days.</p>
+                    </div>
+                `;
+            }
+
+            resultsDiv.innerHTML = `
+                <div class="stock-card">
+                    <div class="stock-header">
+                        <div class="stock-info">
+                            <h2>${escapeHtml(companyName)}</h2>
+                            <div>
+                                <span class="stock-symbol">${symbol}</span>
+                                <span class="stock-exchange">${escapeHtml(exchange)}</span>
+                            </div>
+                            ${industry !== 'N/A' ? `<p style="color: #8892b0; margin-top: 8px; font-size: 0.9rem;">${escapeHtml(industry)}</p>` : ''}
+                        </div>
+                        <div class="price-container">
+                            <div class="current-price">$${currentPrice}</div>
+                            <div class="price-change ${changeClass}">
+                                ${changeSymbol}${change} (${changeSymbol}${changePercent}%)
+                            </div>
+                        </div>
+                    </div>
+                    <div class="stock-details">
+                        <div class="detail-item">
+                            <div class="detail-label">Open</div>
+                            <div class="detail-value">$${openPrice}</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Previous Close</div>
+                            <div class="detail-value">$${prevClose}</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Day High</div>
+                            <div class="detail-value">$${highPrice}</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Day Low</div>
+                            <div class="detail-value">$${lowPrice}</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="news-section">
+                    <div class="news-header">
+                        <h3>📰 Recent News</h3>
+                        <span class="news-badge">Last 7 days</span>
+                    </div>
+                    ${newsHTML}
+                </div>
+            `;
+        }
+
+        function showNotFound(symbol) {
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML = `
+                <div class="error-box">
+                    <h3 style="margin-bottom: 12px;">Symbol Not Found</h3>
+                    <p>Could not find stock data for "<strong>${escapeHtml(symbol)}</strong>"</p>
+                    <p style="margin-top: 12px; font-size: 0.9rem; color: #a0aec0;">
+                        Make sure you're using the correct stock symbol (e.g., AAPL for Apple, MSFT for Microsoft).
+                    </p>
+                </div>
+            `;
+        }
+
+        function showError(error) {
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML = `
+                <div class="error-box">
+                    <h3 style="margin-bottom: 12px;">Error Fetching Data</h3>
+                    <p>There was a problem retrieving stock information.</p>
+                    <p style="margin-top: 12px; font-size: 0.9rem; color: #a0aec0;">
+                        This may be due to API rate limits. Please try again in a moment.
+                    </p>
+                </div>
+            `;
+        }
+
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function quickSearch(symbol) {
+            document.getElementById('searchInput').value = symbol;
+            searchStock();
+        }
+
+        // Enter key to search
+        document.getElementById('searchInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                searchStock();
+            }
+        });
+    </script>
+</body>
+</html>
