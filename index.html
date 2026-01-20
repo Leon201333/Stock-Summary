@@ -271,7 +271,7 @@
             align-items: center;
             gap: 10px;
             margin-bottom: 16px;
-            cursor: pointer;
+            flex-wrap: wrap;
         }
 
         .news-header h3 {
@@ -292,6 +292,11 @@
             margin-left: auto;
             color: #8892b0;
             font-size: 0.85rem;
+            cursor: pointer;
+        }
+
+        .news-toggle:hover {
+            color: #64ffda;
         }
 
         .news-list {
@@ -351,6 +356,67 @@
             padding: 20px;
             color: #8892b0;
             font-size: 0.9rem;
+        }
+
+        .news-timeframe {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-left: 12px;
+        }
+
+        .news-value-input {
+            width: 60px;
+            padding: 6px 10px;
+            font-size: 0.85rem;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 6px;
+            background: rgba(255, 255, 255, 0.05);
+            color: #fff;
+            text-align: center;
+        }
+
+        .news-value-input:focus {
+            outline: none;
+            border-color: #64ffda;
+        }
+
+        .news-unit-select {
+            padding: 6px 10px;
+            font-size: 0.85rem;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 6px;
+            background: rgba(255, 255, 255, 0.05);
+            color: #fff;
+            cursor: pointer;
+        }
+
+        .news-unit-select:focus {
+            outline: none;
+            border-color: #64ffda;
+        }
+
+        .news-unit-select option {
+            background: #1a1a2e;
+            color: #fff;
+        }
+
+        .news-refresh-btn {
+            padding: 6px 12px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            background: rgba(100, 255, 218, 0.2);
+            color: #64ffda;
+            border: 1px solid #64ffda;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .news-refresh-btn:hover {
+            background: rgba(100, 255, 218, 0.3);
+            transform: none;
+            box-shadow: none;
         }
 
         .error-box {
@@ -848,10 +914,19 @@
                             </div>
                         </div>
                         <div class="news-section">
-                            <div class="news-header" onclick="toggleNews(${index})">
+                            <div class="news-header">
                                 <h3>📰 Recent News</h3>
-                                <span class="news-badge">${news ? news.length : 0} articles</span>
-                                <span class="news-toggle" id="newsToggle${index}">▼ Show</span>
+                                <div class="news-timeframe">
+                                    <input type="number" id="newsValue${index}" class="news-value-input" value="7" min="1" max="99">
+                                    <select id="newsUnit${index}" class="news-unit-select">
+                                        <option value="days" selected>Days</option>
+                                        <option value="weeks">Weeks</option>
+                                        <option value="months">Months</option>
+                                    </select>
+                                    <button class="news-refresh-btn" onclick="refreshNews('${symbol}', ${index})">Refresh</button>
+                                </div>
+                                <span class="news-badge" id="newsBadge${index}">${news ? news.length : 0} articles</span>
+                                <span class="news-toggle" id="newsToggle${index}" onclick="toggleNews(${index})">▼ Show</span>
                             </div>
                             <div class="news-list" id="newsList${index}">
                                 ${newsHTML}
@@ -874,6 +949,74 @@
             } else {
                 newsList.classList.add('expanded');
                 newsToggle.textContent = '▲ Hide';
+            }
+        }
+
+        async function refreshNews(symbol, index) {
+            const valueInput = document.getElementById(`newsValue${index}`);
+            const unitSelect = document.getElementById(`newsUnit${index}`);
+            const newsList = document.getElementById(`newsList${index}`);
+            const newsBadge = document.getElementById(`newsBadge${index}`);
+            
+            const value = parseInt(valueInput.value) || 7;
+            const unit = unitSelect.value;
+            
+            // Calculate the from date based on selection
+            const today = new Date();
+            let fromDate = new Date();
+            
+            if (unit === 'days') {
+                fromDate.setDate(today.getDate() - value);
+            } else if (unit === 'weeks') {
+                fromDate.setDate(today.getDate() - (value * 7));
+            } else if (unit === 'months') {
+                fromDate.setMonth(today.getMonth() - value);
+            }
+            
+            const toDateStr = today.toISOString().split('T')[0];
+            const fromDateStr = fromDate.toISOString().split('T')[0];
+            
+            // Show loading state
+            newsList.innerHTML = '<div class="no-news">Loading news...</div>';
+            newsList.classList.add('expanded');
+            document.getElementById(`newsToggle${index}`).textContent = '▲ Hide';
+            
+            try {
+                const newsResponse = await fetch(`https://finnhub.io/api/v1/company-news?symbol=${symbol}&from=${fromDateStr}&to=${toDateStr}&token=${FINNHUB_API_KEY}`);
+                const news = await newsResponse.json();
+                
+                // Update badge
+                newsBadge.textContent = `${news.length} articles`;
+                
+                // Build news HTML
+                let newsHTML = '';
+                if (news && news.length > 0) {
+                    const recentNews = news.slice(0, 10);
+                    newsHTML = recentNews.map(article => {
+                        const date = new Date(article.datetime * 1000).toLocaleDateString('en-US', {
+                            month: 'short',
+                            day: 'numeric'
+                        });
+                        return `
+                            <div class="news-item">
+                                <a href="${article.url}" target="_blank" rel="noopener">
+                                    <h4 class="news-title">${escapeHtml(article.headline)}</h4>
+                                </a>
+                                <div class="news-meta">
+                                    <span class="news-source">${escapeHtml(article.source)}</span>
+                                    <span>📅 ${date}</span>
+                                </div>
+                            </div>
+                        `;
+                    }).join('');
+                } else {
+                    newsHTML = `<div class="no-news">No news found for the selected timeframe.</div>`;
+                }
+                
+                newsList.innerHTML = newsHTML;
+                
+            } catch (error) {
+                newsList.innerHTML = '<div class="no-news">Error loading news. Please try again.</div>';
             }
         }
 
