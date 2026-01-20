@@ -699,15 +699,15 @@
             switch(interval) {
                 case '1D':
                     fromTime = now - (24 * 60 * 60);
-                    resolution = '5';
+                    resolution = '30';
                     break;
                 case '5D':
                     fromTime = now - (5 * 24 * 60 * 60);
-                    resolution = '15';
+                    resolution = '60';
                     break;
                 case '1M':
                     fromTime = now - (30 * 24 * 60 * 60);
-                    resolution = '60';
+                    resolution = 'D';
                     break;
                 case '6M':
                     fromTime = now - (180 * 24 * 60 * 60);
@@ -716,15 +716,15 @@
                 case 'YTD':
                     const startOfYear = new Date(new Date().getFullYear(), 0, 1);
                     fromTime = Math.floor(startOfYear.getTime() / 1000);
-                    resolution = 'D';
+                    resolution = 'M';
                     break;
                 case '1Y':
                     fromTime = now - (365 * 24 * 60 * 60);
-                    resolution = 'D';
+                    resolution = 'M';
                     break;
                 case '5Y':
                     fromTime = now - (5 * 365 * 24 * 60 * 60);
-                    resolution = 'W';
+                    resolution = 'M';
                     break;
                 default:
                     fromTime = now - (30 * 24 * 60 * 60);
@@ -754,7 +754,7 @@
                     const date = new Date(timestamp * 1000);
                     if (interval === '1D' || interval === '5D') {
                         return date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
-                    } else if (interval === '5Y') {
+                    } else if (interval === 'YTD' || interval === '1Y' || interval === '5Y') {
                         return date.toLocaleDateString('en-US', { year: 'numeric', month: 'short' });
                     } else {
                         return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
@@ -1228,15 +1228,15 @@
             switch(interval) {
                 case '1D':
                     fromTime = now - (24 * 60 * 60);
-                    resolution = '5';
+                    resolution = '30';
                     break;
                 case '5D':
                     fromTime = now - (5 * 24 * 60 * 60);
-                    resolution = '15';
+                    resolution = '60';
                     break;
                 case '1M':
                     fromTime = now - (30 * 24 * 60 * 60);
-                    resolution = '60';
+                    resolution = 'D';
                     break;
                 case '6M':
                     fromTime = now - (180 * 24 * 60 * 60);
@@ -1245,15 +1245,15 @@
                 case 'YTD':
                     const startOfYear = new Date(new Date().getFullYear(), 0, 1);
                     fromTime = Math.floor(startOfYear.getTime() / 1000);
-                    resolution = 'D';
+                    resolution = 'M';
                     break;
                 case '1Y':
                     fromTime = now - (365 * 24 * 60 * 60);
-                    resolution = 'D';
+                    resolution = 'M';
                     break;
                 case '5Y':
                     fromTime = now - (5 * 365 * 24 * 60 * 60);
-                    resolution = 'W';
+                    resolution = 'M';
                     break;
                 default:
                     fromTime = now - (30 * 24 * 60 * 60);
@@ -1283,7 +1283,7 @@
                     const date = new Date(timestamp * 1000);
                     if (interval === '1D' || interval === '5D') {
                         return date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
-                    } else if (interval === '5Y') {
+                    } else if (interval === 'YTD' || interval === '1Y' || interval === '5Y') {
                         return date.toLocaleDateString('en-US', { year: 'numeric', month: 'short' });
                     } else {
                         return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
