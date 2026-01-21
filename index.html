@@ -16,14 +16,108 @@
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            background: #ffffff;
             min-height: 100vh;
             padding: 40px 20px;
-            color: #e0e0e0;
+            color: #333333;
+        }
+
+        .page-wrapper {
+            display: flex;
+            max-width: 1400px;
+            margin: 0 auto;
+            gap: 24px;
+        }
+
+        .sidebar {
+            width: 220px;
+            flex-shrink: 0;
+            position: sticky;
+            top: 20px;
+            height: fit-content;
+            max-height: calc(100vh - 40px);
+            overflow-y: auto;
+        }
+
+        .sidebar-nav {
+            background: #f8f9fa;
+            border: 1px solid #e0e0e0;
+            border-radius: 12px;
+            padding: 16px;
+        }
+
+        .sidebar-title {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #666;
+            margin-bottom: 12px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .sidebar-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .sidebar-item {
+            margin-bottom: 8px;
+        }
+
+        .sidebar-link {
+            display: block;
+            padding: 10px 12px;
+            background: #fff;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            color: #333;
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+
+        .sidebar-link:hover {
+            background: #e8f4f8;
+            border-color: #64ffda;
+        }
+
+        .sidebar-link .symbol {
+            font-weight: 700;
+            color: #0066cc;
+        }
+
+        .sidebar-link .company-name {
+            font-size: 0.8rem;
+            color: #666;
+            display: block;
+            margin-top: 2px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .sidebar-link .price-indicator {
+            font-size: 0.75rem;
+            margin-top: 4px;
+        }
+
+        .sidebar-link .price-up {
+            color: #00a86b;
+        }
+
+        .sidebar-link .price-down {
+            color: #dc3545;
+        }
+
+        .main-content {
+            flex: 1;
+            min-width: 0;
         }
 
         .container {
-            max-width: 1000px;
+            max-width: 100%;
             margin: 0 auto;
         }
 
@@ -34,18 +128,18 @@
 
         h1 {
             font-size: 2.4rem;
-            color: #fff;
+            color: #333;
             margin-bottom: 8px;
         }
 
         .subtitle {
-            color: #8892b0;
+            color: #666;
             font-size: 1.1rem;
         }
 
         .search-section {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: #f8f9fa;
+            border: 1px solid #e0e0e0;
             border-radius: 16px;
             padding: 32px;
             margin-bottom: 24px;
@@ -60,29 +154,29 @@
             flex: 1;
             padding: 16px 20px;
             font-size: 1.1rem;
-            border: 2px solid rgba(255, 255, 255, 0.1);
+            border: 2px solid #e0e0e0;
             border-radius: 12px;
-            background: rgba(255, 255, 255, 0.05);
-            color: #fff;
+            background: #fff;
+            color: #333;
             transition: border-color 0.2s, box-shadow 0.2s;
         }
 
         input[type="text"]::placeholder {
-            color: #8892b0;
+            color: #999;
         }
 
         input[type="text"]:focus {
             outline: none;
-            border-color: #64ffda;
-            box-shadow: 0 0 0 4px rgba(100, 255, 218, 0.15);
+            border-color: #0066cc;
+            box-shadow: 0 0 0 4px rgba(0, 102, 204, 0.15);
         }
 
         button {
             padding: 16px 32px;
             font-size: 1.1rem;
             font-weight: 600;
-            background: linear-gradient(135deg, #64ffda 0%, #48c9b0 100%);
-            color: #1a1a2e;
+            background: linear-gradient(135deg, #0066cc 0%, #0052a3 100%);
+            color: #fff;
             border: none;
             border-radius: 12px;
             cursor: pointer;
@@ -91,7 +185,7 @@
 
         button:hover {
             transform: translateY(-2px);
-            box-shadow: 0 4px 20px rgba(100, 255, 218, 0.3);
+            box-shadow: 0 4px 20px rgba(0, 102, 204, 0.3);
         }
 
         button:active {
@@ -128,19 +222,19 @@
 
         .quick-link {
             padding: 8px 16px;
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: #fff;
+            border: 1px solid #e0e0e0;
             border-radius: 20px;
             font-size: 0.9rem;
-            color: #8892b0;
+            color: #0066cc;
             cursor: pointer;
             transition: all 0.2s;
         }
 
         .quick-link:hover {
-            background: rgba(100, 255, 218, 0.1);
-            border-color: #64ffda;
-            color: #64ffda;
+            background: #e8f4f8;
+            border-color: #0066cc;
+            color: #0052a3;
         }
 
         .results {
@@ -174,11 +268,65 @@
         }
 
         .stock-card {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: #f8f9fa;
+            border: 1px solid #e0e0e0;
             border-radius: 16px;
-            padding: 32px;
-            margin-bottom: 24px;
+            padding: 20px;
+            margin-bottom: 16px;
+        }
+
+        .stock-card-header-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .stock-card-title {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .stock-card-title h2 {
+            font-size: 1.4rem;
+            color: #333;
+            margin: 0;
+        }
+
+        .stock-card-title .symbol-badge {
+            background: #0066cc;
+            color: #fff;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .stock-card-toggle {
+            padding: 8px 16px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            background: #fff;
+            color: #666;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .stock-card-toggle:hover {
+            background: #f0f0f0;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .stock-card-content {
+            transition: all 0.3s;
+        }
+
+        .stock-card-content.collapsed {
+            display: none;
         }
 
         .stock-header {
@@ -186,23 +334,23 @@
             justify-content: space-between;
             align-items: flex-start;
             flex-wrap: wrap;
-            gap: 20px;
-            margin-bottom: 24px;
-            padding-bottom: 24px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            gap: 12px;
+            margin-bottom: 12px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #e0e0e0;
         }
 
         .stock-info h2 {
             font-size: 1.6rem;
-            color: #fff;
+            color: #333;
             margin-bottom: 4px;
         }
 
         .stock-symbol {
             display: inline-block;
             padding: 4px 12px;
-            background: rgba(100, 255, 218, 0.1);
-            color: #64ffda;
+            background: #e8f4f8;
+            color: #0066cc;
             border-radius: 6px;
             font-size: 0.9rem;
             font-weight: 600;
@@ -210,7 +358,7 @@
         }
 
         .stock-exchange {
-            color: #8892b0;
+            color: #666;
             font-size: 0.9rem;
         }
 
@@ -221,7 +369,7 @@
         .current-price {
             font-size: 2.2rem;
             font-weight: 700;
-            color: #fff;
+            color: #333;
         }
 
         .price-change {
@@ -230,61 +378,62 @@
         }
 
         .price-change.positive {
-            color: #64ffda;
+            color: #00a86b;
         }
 
         .price-change.negative {
-            color: #ff6b6b;
+            color: #dc3545;
         }
 
         .stock-details {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-            gap: 12px;
-            margin-bottom: 24px;
+            gap: 8px;
+            margin-bottom: 12px;
         }
 
         .detail-item {
-            background: rgba(255, 255, 255, 0.03);
-            padding: 14px;
-            border-radius: 10px;
+            background: #fff;
+            border: 1px solid #e0e0e0;
+            padding: 10px;
+            border-radius: 8px;
         }
 
         .detail-label {
             font-size: 0.8rem;
-            color: #8892b0;
+            color: #666;
             margin-bottom: 4px;
         }
 
         .detail-value {
             font-size: 1rem;
-            color: #fff;
+            color: #333;
             font-weight: 600;
         }
 
         .news-section {
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
-            padding-top: 24px;
+            border-top: 1px solid #e0e0e0;
+            padding-top: 12px;
         }
 
         .chart-section {
-            margin-bottom: 24px;
-            padding-bottom: 24px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 12px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #e0e0e0;
         }
 
         .chart-header {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            margin-bottom: 16px;
+            margin-bottom: 10px;
             flex-wrap: wrap;
-            gap: 12px;
+            gap: 8px;
         }
 
         .chart-header h3 {
             font-size: 1.1rem;
-            color: #fff;
+            color: #333;
         }
 
         .chart-intervals {
@@ -297,32 +446,33 @@
             padding: 6px 12px;
             font-size: 0.8rem;
             font-weight: 600;
-            background: rgba(255, 255, 255, 0.05);
-            color: #8892b0;
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: #fff;
+            color: #666;
+            border: 1px solid #e0e0e0;
             border-radius: 6px;
             cursor: pointer;
             transition: all 0.2s;
         }
 
         .interval-btn:hover {
-            background: rgba(100, 255, 218, 0.1);
-            border-color: rgba(100, 255, 218, 0.3);
-            color: #64ffda;
+            background: #e8f4f8;
+            border-color: #0066cc;
+            color: #0066cc;
             transform: none;
             box-shadow: none;
         }
 
         .interval-btn.active {
-            background: rgba(100, 255, 218, 0.2);
-            border-color: #64ffda;
-            color: #64ffda;
+            background: #0066cc;
+            border-color: #0066cc;
+            color: #fff;
         }
 
         .chart-container {
             position: relative;
             height: 250px;
-            background: rgba(0, 0, 0, 0.2);
+            background: #fff;
+            border: 1px solid #e0e0e0;
             border-radius: 12px;
             padding: 16px;
         }
@@ -332,26 +482,26 @@
             align-items: center;
             justify-content: center;
             height: 100%;
-            color: #8892b0;
+            color: #666;
         }
 
         .news-header {
             display: flex;
             align-items: center;
-            gap: 10px;
-            margin-bottom: 16px;
+            gap: 8px;
+            margin-bottom: 10px;
             flex-wrap: wrap;
         }
 
         .news-header h3 {
             font-size: 1.1rem;
-            color: #fff;
+            color: #333;
         }
 
         .news-badge {
             padding: 4px 10px;
-            background: rgba(100, 255, 218, 0.1);
-            color: #64ffda;
+            background: #e8f4f8;
+            color: #0066cc;
             border-radius: 6px;
             font-size: 0.75rem;
             font-weight: 600;
@@ -359,13 +509,13 @@
 
         .news-toggle {
             margin-left: auto;
-            color: #8892b0;
+            color: #666;
             font-size: 0.85rem;
             cursor: pointer;
         }
 
         .news-toggle:hover {
-            color: #64ffda;
+            color: #0066cc;
         }
 
         .news-list {
@@ -377,7 +527,8 @@
         }
 
         .news-item {
-            background: rgba(255, 255, 255, 0.03);
+            background: #fff;
+            border: 1px solid #e0e0e0;
             border-radius: 10px;
             padding: 16px;
             margin-bottom: 12px;
@@ -386,7 +537,7 @@
 
         .news-item:hover {
             transform: translateX(4px);
-            background: rgba(255, 255, 255, 0.05);
+            background: #f8f9fa;
         }
 
         .news-item:last-child {
@@ -399,13 +550,13 @@
 
         .news-title {
             font-size: 1rem;
-            color: #fff;
+            color: #333;
             margin-bottom: 6px;
             line-height: 1.4;
         }
 
         .news-title:hover {
-            color: #64ffda;
+            color: #0066cc;
         }
 
         .news-meta {
@@ -413,17 +564,17 @@
             gap: 12px;
             flex-wrap: wrap;
             font-size: 0.8rem;
-            color: #8892b0;
+            color: #666;
         }
 
         .news-source {
-            color: #64ffda;
+            color: #0066cc;
         }
 
         .no-news {
             text-align: center;
             padding: 20px;
-            color: #8892b0;
+            color: #666;
             font-size: 0.9rem;
         }
 
@@ -438,52 +589,52 @@
             width: 60px;
             padding: 6px 10px;
             font-size: 0.85rem;
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            border: 1px solid #e0e0e0;
             border-radius: 6px;
-            background: rgba(255, 255, 255, 0.05);
-            color: #fff;
+            background: #fff;
+            color: #333;
             text-align: center;
         }
 
         .news-value-input:focus {
             outline: none;
-            border-color: #64ffda;
+            border-color: #0066cc;
         }
 
         .news-unit-select {
             padding: 6px 10px;
             font-size: 0.85rem;
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            border: 1px solid #e0e0e0;
             border-radius: 6px;
-            background: rgba(255, 255, 255, 0.05);
-            color: #fff;
+            background: #fff;
+            color: #333;
             cursor: pointer;
         }
 
         .news-unit-select:focus {
             outline: none;
-            border-color: #64ffda;
+            border-color: #0066cc;
         }
 
         .news-unit-select option {
-            background: #1a1a2e;
-            color: #fff;
+            background: #fff;
+            color: #333;
         }
 
         .news-refresh-btn {
             padding: 6px 12px;
             font-size: 0.8rem;
             font-weight: 600;
-            background: rgba(100, 255, 218, 0.2);
-            color: #64ffda;
-            border: 1px solid #64ffda;
+            background: #e8f4f8;
+            color: #0066cc;
+            border: 1px solid #0066cc;
             border-radius: 6px;
             cursor: pointer;
             transition: all 0.2s;
         }
 
         .news-refresh-btn:hover {
-            background: rgba(100, 255, 218, 0.3);
+            background: #d0e8f0;
             transform: none;
             box-shadow: none;
         }
@@ -499,44 +650,44 @@
             width: 70px;
             padding: 8px 10px;
             font-size: 0.9rem;
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            border: 1px solid #e0e0e0;
             border-radius: 6px;
-            background: rgba(255, 255, 255, 0.05);
-            color: #fff;
+            background: #fff;
+            color: #333;
             text-align: center;
         }
 
         .price-history-input:focus {
             outline: none;
-            border-color: #64ffda;
+            border-color: #0066cc;
         }
 
         .price-history-select {
             padding: 8px 12px;
             font-size: 0.9rem;
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            border: 1px solid #e0e0e0;
             border-radius: 6px;
-            background: rgba(255, 255, 255, 0.05);
-            color: #fff;
+            background: #fff;
+            color: #333;
             cursor: pointer;
         }
 
         .price-history-select:focus {
             outline: none;
-            border-color: #64ffda;
+            border-color: #0066cc;
         }
 
         .price-history-select option {
-            background: #1a1a2e;
-            color: #fff;
+            background: #fff;
+            color: #333;
         }
 
         .price-history-btn {
             padding: 8px 16px;
             font-size: 0.9rem;
             font-weight: 600;
-            background: linear-gradient(135deg, #64ffda 0%, #48c9b0 100%);
-            color: #1a1a2e;
+            background: linear-gradient(135deg, #0066cc 0%, #0052a3 100%);
+            color: #fff;
             border: none;
             border-radius: 6px;
             cursor: pointer;
@@ -545,26 +696,50 @@
 
         .price-history-btn:hover {
             transform: translateY(-1px);
-            box-shadow: 0 2px 10px rgba(100, 255, 218, 0.3);
+            box-shadow: 0 2px 10px rgba(0, 102, 204, 0.3);
+        }
+
+        .price-history-toggle-btn {
+            padding: 8px 12px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            background: #fff;
+            color: #666;
+            border: 1px solid #e0e0e0;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .price-history-toggle-btn:hover {
+            background: #f0f0f0;
+            transform: none;
+            box-shadow: none;
         }
 
         .price-history-container {
-            margin-top: 16px;
+            margin-top: 10px;
+        }
+
+        .price-history-container.collapsed {
+            display: none;
         }
 
         .price-chart-wrapper {
-            background: rgba(0, 0, 0, 0.2);
+            background: #fff;
+            border: 1px solid #e0e0e0;
             border-radius: 12px;
-            padding: 16px;
-            margin-bottom: 16px;
-            height: 250px;
+            padding: 12px;
+            margin-bottom: 10px;
+            height: 220px;
         }
 
         .price-table-wrapper {
             max-height: 300px;
             overflow-y: auto;
             border-radius: 12px;
-            background: rgba(0, 0, 0, 0.2);
+            background: #fff;
+            border: 1px solid #e0e0e0;
         }
 
         .price-table {
@@ -576,30 +751,30 @@
         .price-table th {
             position: sticky;
             top: 0;
-            background: #1a1a2e;
+            background: #f8f9fa;
             padding: 12px 16px;
             text-align: left;
-            color: #64ffda;
+            color: #0066cc;
             font-weight: 600;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            border-bottom: 1px solid #e0e0e0;
         }
 
         .price-table td {
             padding: 10px 16px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-            color: #e0e0e0;
+            border-bottom: 1px solid #f0f0f0;
+            color: #333;
         }
 
         .price-table tr:hover {
-            background: rgba(100, 255, 218, 0.05);
+            background: #f8f9fa;
         }
 
         .price-table .price-up {
-            color: #64ffda;
+            color: #00a86b;
         }
 
         .price-table .price-down {
-            color: #ff6b6b;
+            color: #dc3545;
         }
 
         .price-table .change-cell {
@@ -607,18 +782,18 @@
         }
 
         .error-box {
-            background: rgba(255, 107, 107, 0.1);
-            border: 1px solid rgba(255, 107, 107, 0.3);
+            background: #fff5f5;
+            border: 1px solid #dc3545;
             border-radius: 12px;
             padding: 24px;
             text-align: center;
-            color: #ff6b6b;
+            color: #dc3545;
             margin-bottom: 24px;
         }
 
         .summary-bar {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: #f8f9fa;
+            border: 1px solid #e0e0e0;
             border-radius: 12px;
             padding: 20px;
             margin-bottom: 24px;
@@ -634,34 +809,35 @@
 
         .summary-label {
             font-size: 0.8rem;
-            color: #8892b0;
+            color: #666;
             margin-bottom: 4px;
         }
 
         .summary-value {
             font-size: 1.2rem;
             font-weight: 600;
-            color: #fff;
+            color: #333;
         }
 
         .disclaimer {
             margin-top: 32px;
             padding: 20px;
-            background: rgba(255, 255, 255, 0.03);
+            background: #f8f9fa;
+            border: 1px solid #e0e0e0;
             border-radius: 12px;
             font-size: 0.85rem;
-            color: #8892b0;
+            color: #666;
             line-height: 1.6;
         }
 
         .api-note {
             margin-top: 16px;
             padding: 16px;
-            background: rgba(100, 255, 218, 0.05);
-            border: 1px solid rgba(100, 255, 218, 0.1);
+            background: #e8f4f8;
+            border: 1px solid #0066cc;
             border-radius: 12px;
             font-size: 0.85rem;
-            color: #64ffda;
+            color: #0066cc;
         }
 
         /* Autocomplete styles */
@@ -675,14 +851,15 @@
             top: 100%;
             left: 0;
             right: 0;
-            background: #1e2a3a;
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: #fff;
+            border: 1px solid #e0e0e0;
             border-radius: 12px;
             margin-top: 8px;
             max-height: 300px;
             overflow-y: auto;
             z-index: 100;
             display: none;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
         }
 
         .autocomplete-list.visible {
@@ -692,12 +869,12 @@
         .autocomplete-item {
             padding: 12px 16px;
             cursor: pointer;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            border-bottom: 1px solid #f0f0f0;
             transition: background 0.2s;
         }
 
         .autocomplete-item:hover {
-            background: rgba(100, 255, 218, 0.1);
+            background: #e8f4f8;
         }
 
         .autocomplete-item:last-child {
@@ -706,18 +883,49 @@
 
         .autocomplete-symbol {
             font-weight: 600;
-            color: #64ffda;
+            color: #0066cc;
             margin-right: 8px;
         }
 
         .autocomplete-name {
-            color: #e0e0e0;
+            color: #333;
         }
 
         .autocomplete-type {
             font-size: 0.8rem;
-            color: #8892b0;
+            color: #666;
             margin-left: 8px;
+        }
+
+        @media (max-width: 900px) {
+            .page-wrapper {
+                flex-direction: column;
+            }
+            
+            .sidebar {
+                width: 100%;
+                position: static;
+                max-height: none;
+                margin-bottom: 20px;
+            }
+            
+            .sidebar-list {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 8px;
+            }
+            
+            .sidebar-item {
+                margin-bottom: 0;
+            }
+            
+            .sidebar-link {
+                padding: 8px 12px;
+            }
+            
+            .sidebar-link .company-name {
+                display: none;
+            }
         }
 
         @media (max-width: 600px) {
@@ -748,48 +956,71 @@
             .summary-bar {
                 justify-content: center;
             }
+            
+            .stock-card-header-row {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 12px;
+            }
+            
+            .price-history-controls {
+                flex-wrap: wrap;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <header>
-            <h1>📈 Stock Lookup</h1>
-            <p class="subtitle">Search by company name or stock symbol</p>
-        </header>
+    <div class="page-wrapper">
+        <aside class="sidebar" id="sidebar">
+            <nav class="sidebar-nav">
+                <div class="sidebar-title">📊 Companies</div>
+                <ul class="sidebar-list" id="sidebarList">
+                    <li class="sidebar-item" style="color: #666; font-size: 0.85rem; padding: 10px;">Search for stocks to see them here</li>
+                </ul>
+            </nav>
+        </aside>
+        
+        <main class="main-content">
+            <div class="container">
+                <header>
+                    <h1>📈 Stock Lookup</h1>
+                    <p class="subtitle">Search by company name or stock symbol</p>
+                </header>
 
-        <div class="search-section">
-            <div class="search-box">
-                <div class="search-wrapper">
-                    <input type="text" id="searchInput" placeholder="Enter symbols or company names (e.g., AAPL, Microsoft, TSLA)..." autofocus>
-                    <div class="autocomplete-list" id="autocompleteList"></div>
+                <div class="search-section">
+                    <div class="search-box">
+                        <div class="search-wrapper">
+                            <input type="text" id="searchInput" placeholder="Enter symbols or company names (e.g., AAPL, Microsoft, TSLA)..." autofocus>
+                            <div class="autocomplete-list" id="autocompleteList"></div>
+                        </div>
+                        <button id="searchBtn" onclick="searchStocks()">Search</button>
+                    </div>
+                    <div class="search-tips">
+                        <strong>💡 Tip:</strong> Search multiple stocks by separating them with commas: <strong>AAPL, MSFT, Google</strong>
+                    </div>
+                    <div class="quick-links">
+                        <span style="color: #666; font-size: 0.9rem; margin-right: 8px;">Popular:</span>
+                        <button class="quick-link" onclick="quickSearch('AAPL')">Apple</button>
+                        <button class="quick-link" onclick="quickSearch('MSFT')">Microsoft</button>
+                        <button class="quick-link" onclick="quickSearch('GOOGL')">Google</button>
+                        <button class="quick-link" onclick="quickSearch('AMZN')">Amazon</button>
+                        <button class="quick-link" onclick="quickSearch('TSLA')">Tesla</button>
+                        <button class="quick-link" onclick="quickSearch('NVDA')">Nvidia</button>
+                        <button class="quick-link" onclick="quickSearch('AAPL, MSFT, GOOGL')">Compare Big Tech</button>
+                    </div>
                 </div>
-                <button id="searchBtn" onclick="searchStocks()">Search</button>
-            </div>
-            <div class="search-tips">
-                <strong>💡 Tip:</strong> Search multiple stocks by separating them with commas: <strong>AAPL, MSFT, Google</strong>
-            </div>
-            <div class="quick-links">
-                <span style="color: #8892b0; font-size: 0.9rem; margin-right: 8px;">Popular:</span>
-                <button class="quick-link" onclick="quickSearch('AAPL')">Apple</button>
-                <button class="quick-link" onclick="quickSearch('MSFT')">Microsoft</button>
-                <button class="quick-link" onclick="quickSearch('GOOGL')">Google</button>
-                <button class="quick-link" onclick="quickSearch('AMZN')">Amazon</button>
-                <button class="quick-link" onclick="quickSearch('TSLA')">Tesla</button>
-                <button class="quick-link" onclick="quickSearch('NVDA')">Nvidia</button>
-                <button class="quick-link" onclick="quickSearch('AAPL, MSFT, GOOGL')">Compare Big Tech</button>
-            </div>
-        </div>
 
-        <div class="results" id="results"></div>
+                <div class="results" id="results"></div>
 
-        <div class="disclaimer">
-            <strong>⚠️ Disclaimer:</strong> This tool is for informational purposes only. Stock prices may be delayed. This is not financial advice. Always do your own research and consult with a financial advisor before making investment decisions.
-        </div>
+                <div class="disclaimer">
+                    <strong>⚠️ Disclaimer:</strong> This tool is for informational purposes only. Stock prices may be delayed. This is not financial advice. Always do your own research and consult with a financial advisor before making investment decisions.
+                </div>
 
-        <div class="api-note">
-            <strong>📡 Data Sources:</strong> Stock data and news from Finnhub API. Data may have a slight delay from real-time values.
-        </div>
+                <div class="api-note">
+                    <strong>📡 Data Sources:</strong> Stock data and news from Finnhub API. Price history from Alpha Vantage API.
+                </div>
+            </div>
+        </main>
     </div>
 
     <script>
@@ -1007,19 +1238,41 @@
                         </div>
                         <div class="summary-item">
                             <div class="summary-label">Gainers</div>
-                            <div class="summary-value" style="color: #64ffda;">↑ ${gainers}</div>
+                            <div class="summary-value" style="color: #00a86b;">↑ ${gainers}</div>
                         </div>
                         <div class="summary-item">
                             <div class="summary-label">Losers</div>
-                            <div class="summary-value" style="color: #ff6b6b;">↓ ${losers}</div>
+                            <div class="summary-value" style="color: #dc3545;">↓ ${losers}</div>
                         </div>
                         <div class="summary-item">
                             <div class="summary-label">Avg Change</div>
-                            <div class="summary-value" style="color: ${avgChange >= 0 ? '#64ffda' : '#ff6b6b'};">${avgChange >= 0 ? '+' : ''}${avgChange}%</div>
+                            <div class="summary-value" style="color: ${avgChange >= 0 ? '#00a86b' : '#dc3545'};">${avgChange >= 0 ? '+' : ''}${avgChange}%</div>
                         </div>
                     </div>
                 `;
             }
+
+            // Build sidebar navigation
+            let sidebarHTML = '';
+            results.forEach((result, index) => {
+                const { symbol, quote, profile } = result;
+                const companyName = profile.name || symbol;
+                const changePercent = quote.dp?.toFixed(2) || 0;
+                const isPositive = changePercent >= 0;
+                const changeClass = isPositive ? 'price-up' : 'price-down';
+                const changeSymbol = isPositive ? '+' : '';
+                
+                sidebarHTML += `
+                    <li class="sidebar-item">
+                        <div class="sidebar-link" onclick="scrollToStock(${index})">
+                            <span class="symbol">${symbol}</span>
+                            <span class="company-name">${escapeHtml(companyName)}</span>
+                            <div class="price-indicator ${changeClass}">${changeSymbol}${changePercent}%</div>
+                        </div>
+                    </li>
+                `;
+            });
+            document.getElementById('sidebarList').innerHTML = sidebarHTML;
 
             // Individual stock cards
             results.forEach((result, index) => {
@@ -1067,51 +1320,59 @@
                 }
 
                 html += `
-                    <div class="stock-card">
-                        <div class="stock-header">
-                            <div class="stock-info">
+                    <div class="stock-card" id="stockCard${index}">
+                        <div class="stock-card-header-row">
+                            <div class="stock-card-title">
                                 <h2>${escapeHtml(companyName)}</h2>
-                                <div>
-                                    <span class="stock-symbol">${symbol}</span>
-                                    <span class="stock-exchange">${escapeHtml(exchange)}</span>
-                                </div>
-                                ${industry !== 'N/A' ? `<p style="color: #8892b0; margin-top: 8px; font-size: 0.85rem;">${escapeHtml(industry)}</p>` : ''}
+                                <span class="symbol-badge">${symbol}</span>
                             </div>
-                            <div class="price-container">
-                                <div class="current-price">$${currentPrice}</div>
-                                <div class="price-change ${changeClass}">
-                                    ${changeSymbol}${change} (${changeSymbol}${changePercent}%)
-                                </div>
-                            </div>
+                            <button class="stock-card-toggle" onclick="toggleStockCard(${index})">Hide</button>
                         </div>
-                        <div class="stock-details">
-                            <div class="detail-item">
-                                <div class="detail-label">Open</div>
-                                <div class="detail-value">$${openPrice}</div>
+                        <div class="stock-card-content" id="stockCardContent${index}">
+                            <div class="stock-header">
+                                <div class="stock-info">
+                                    <div>
+                                        <span class="stock-symbol">${symbol}</span>
+                                        <span class="stock-exchange">${escapeHtml(exchange)}</span>
+                                    </div>
+                                    ${industry !== 'N/A' ? `<p style="color: #666; margin-top: 8px; font-size: 0.85rem;">${escapeHtml(industry)}</p>` : ''}
+                                </div>
+                                <div class="price-container">
+                                    <div class="current-price">$${currentPrice}</div>
+                                    <div class="price-change ${changeClass}">
+                                        ${changeSymbol}${change} (${changeSymbol}${changePercent}%)
+                                    </div>
+                                </div>
                             </div>
-                            <div class="detail-item">
-                                <div class="detail-label">Previous Close</div>
-                                <div class="detail-value">$${prevClose}</div>
+                            <div class="stock-details">
+                                <div class="detail-item">
+                                    <div class="detail-label">Open</div>
+                                    <div class="detail-value">$${openPrice}</div>
+                                </div>
+                                <div class="detail-item">
+                                    <div class="detail-label">Previous Close</div>
+                                    <div class="detail-value">$${prevClose}</div>
+                                </div>
+                                <div class="detail-item">
+                                    <div class="detail-label">Day High</div>
+                                    <div class="detail-value">$${highPrice}</div>
+                                </div>
+                                <div class="detail-item">
+                                    <div class="detail-label">Day Low</div>
+                                    <div class="detail-value">$${lowPrice}</div>
+                                </div>
                             </div>
-                            <div class="detail-item">
-                                <div class="detail-label">Day High</div>
-                                <div class="detail-value">$${highPrice}</div>
-                            </div>
-                            <div class="detail-item">
-                                <div class="detail-label">Day Low</div>
-                                <div class="detail-value">$${lowPrice}</div>
-                            </div>
-                        </div>
-                        <div class="chart-section">
-                            <div class="chart-header">
-                                <h3>📊 Price History</h3>
-                                <div class="price-history-controls">
-                                    <input type="number" id="priceHistoryValue${index}" class="price-history-input" value="30" min="1" max="365">
-                                    <select id="priceHistoryUnit${index}" class="price-history-select">
+                            <div class="chart-section">
+                                <div class="chart-header">
+                                    <h3>📊 Price History</h3>
+                                    <div class="price-history-controls">
+                                        <input type="number" id="priceHistoryValue${index}" class="price-history-input" value="30" min="1" max="365">
+                                        <select id="priceHistoryUnit${index}" class="price-history-select">
                                         <option value="days" selected>Days</option>
                                         <option value="months">Months</option>
                                     </select>
                                     <button class="price-history-btn" onclick="loadPriceHistory('${symbol}', ${index})">Load</button>
+                                    <button class="price-history-toggle-btn" id="priceHistoryToggle${index}" onclick="togglePriceHistory(${index})" style="display: none;">Hide</button>
                                 </div>
                             </div>
                             <div class="price-history-container" id="priceHistoryContainer${index}">
@@ -1137,6 +1398,7 @@
                                 ${newsHTML}
                             </div>
                         </div>
+                        </div>
                     </div>
                 `;
             });
@@ -1155,52 +1417,83 @@
             const value = parseInt(valueInput.value) || 30;
             const unit = unitSelect.value;
             
-            // Calculate the from date
-            const now = Math.floor(Date.now() / 1000);
-            let fromTime;
-            
+            // Calculate number of days
+            let totalDays;
             if (unit === 'days') {
-                fromTime = now - (value * 24 * 60 * 60);
+                totalDays = value;
             } else if (unit === 'months') {
-                fromTime = now - (value * 30 * 24 * 60 * 60);
+                totalDays = value * 30;
             }
             
             // Show loading
             container.innerHTML = '<div class="chart-loading">Loading price history...</div>';
             
             try {
-                const response = await fetch(`https://finnhub.io/api/v1/stock/candle?symbol=${symbol}&resolution=D&from=${fromTime}&to=${now}&token=${FINNHUB_API_KEY}`);
+                // Use Alpha Vantage API for daily prices
+                const ALPHA_VANTAGE_KEY = 'R760L61D4G26M6E6'; // Alpha Vantage API key
+                const response = await fetch(`https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=${symbol}&outputsize=compact&apikey=${ALPHA_VANTAGE_KEY}`);
                 const data = await response.json();
                 
-                if (data.s === 'no_data' || !data.c || data.c.length === 0) {
-                    container.innerHTML = '<div class="chart-loading">No data available for this timeframe</div>';
+                // Check for errors
+                if (data['Error Message']) {
+                    container.innerHTML = '<div class="chart-loading">Invalid symbol or API error</div>';
                     return;
                 }
                 
-                // Process data for table and chart
+                if (data['Note']) {
+                    container.innerHTML = '<div class="chart-loading">API rate limit reached. Please wait and try again.</div>';
+                    return;
+                }
+                
+                const timeSeries = data['Time Series (Daily)'];
+                if (!timeSeries) {
+                    container.innerHTML = '<div class="chart-loading">No data available. Get a free API key from alphavantage.co</div>';
+                    return;
+                }
+                
+                // Process data
+                const allDates = Object.keys(timeSeries).sort().reverse(); // Most recent first
+                const limitedDates = allDates.slice(0, totalDays);
+                
                 const prices = [];
-                for (let i = 0; i < data.t.length; i++) {
-                    const date = new Date(data.t[i] * 1000);
-                    const close = data.c[i];
-                    const prevClose = i > 0 ? data.c[i - 1] : close;
+                for (let i = 0; i < limitedDates.length; i++) {
+                    const dateStr = limitedDates[i];
+                    const dayData = timeSeries[dateStr];
+                    const close = parseFloat(dayData['4. close']);
+                    const open = parseFloat(dayData['1. open']);
+                    const high = parseFloat(dayData['2. high']);
+                    const low = parseFloat(dayData['3. low']);
+                    const volume = parseInt(dayData['5. volume']);
+                    
+                    // Get previous close for change calculation
+                    const prevDateStr = limitedDates[i + 1];
+                    const prevClose = prevDateStr ? parseFloat(timeSeries[prevDateStr]['4. close']) : close;
                     const change = close - prevClose;
                     const changePercent = ((change / prevClose) * 100);
                     
                     prices.push({
-                        date: date,
-                        dateStr: date.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }),
-                        open: data.o[i],
-                        high: data.h[i],
-                        low: data.l[i],
+                        date: new Date(dateStr),
+                        dateStr: new Date(dateStr).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }),
+                        open: open,
+                        high: high,
+                        low: low,
                         close: close,
-                        volume: data.v[i],
+                        volume: volume,
                         change: change,
                         changePercent: changePercent
                     });
                 }
                 
-                // Reverse to show most recent first in table
-                const tableData = [...prices].reverse();
+                if (prices.length === 0) {
+                    container.innerHTML = '<div class="chart-loading">No data available for this timeframe</div>';
+                    return;
+                }
+                
+                // Table data (most recent first - already sorted)
+                const tableData = prices;
+                
+                // Chart data (oldest first for proper timeline)
+                const chartData = [...prices].reverse();
                 
                 // Build HTML
                 let html = `
@@ -1247,6 +1540,9 @@
                 
                 container.innerHTML = html;
                 
+                // Show the toggle button
+                document.getElementById(`priceHistoryToggle${index}`).style.display = 'inline-block';
+                
                 // Create chart
                 const canvas = document.getElementById(`priceChart${index}`);
                 
@@ -1256,8 +1552,8 @@
                 }
                 
                 // Format labels
-                const labels = prices.map(p => p.date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }));
-                const closePrices = prices.map(p => p.close);
+                const labels = chartData.map(p => p.date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }));
+                const closePrices = chartData.map(p => p.close);
                 
                 // Determine color based on overall trend
                 const firstPrice = closePrices[0];
@@ -1341,8 +1637,49 @@
                 });
                 
             } catch (error) {
-                container.innerHTML = '<div class="chart-loading">Error loading price history</div>';
+                container.innerHTML = '<div class="chart-loading">Error loading price history. Check console for details.</div>';
                 console.error('Price history error:', error);
+            }
+        }
+
+        function togglePriceHistory(index) {
+            const container = document.getElementById(`priceHistoryContainer${index}`);
+            const toggleBtn = document.getElementById(`priceHistoryToggle${index}`);
+            
+            if (container.classList.contains('collapsed')) {
+                container.classList.remove('collapsed');
+                toggleBtn.textContent = 'Hide';
+            } else {
+                container.classList.add('collapsed');
+                toggleBtn.textContent = 'Show';
+            }
+        }
+
+        function toggleStockCard(index) {
+            const content = document.getElementById(`stockCardContent${index}`);
+            const card = document.getElementById(`stockCard${index}`);
+            const toggleBtn = card.querySelector('.stock-card-toggle');
+            
+            if (content.classList.contains('collapsed')) {
+                content.classList.remove('collapsed');
+                toggleBtn.textContent = 'Hide';
+            } else {
+                content.classList.add('collapsed');
+                toggleBtn.textContent = 'Show';
+            }
+        }
+
+        function scrollToStock(index) {
+            const card = document.getElementById(`stockCard${index}`);
+            if (card) {
+                card.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                // Ensure it's expanded
+                const content = document.getElementById(`stockCardContent${index}`);
+                const toggleBtn = card.querySelector('.stock-card-toggle');
+                if (content.classList.contains('collapsed')) {
+                    content.classList.remove('collapsed');
+                    toggleBtn.textContent = 'Hide';
+                }
             }
         }
 
