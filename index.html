@@ -271,15 +271,15 @@
             background: #f8f9fa;
             border: 1px solid #e0e0e0;
             border-radius: 16px;
-            padding: 32px;
-            margin-bottom: 24px;
+            padding: 20px;
+            margin-bottom: 16px;
         }
 
         .stock-card-header-row {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 16px;
+            margin-bottom: 10px;
         }
 
         .stock-card-title {
@@ -334,9 +334,9 @@
             justify-content: space-between;
             align-items: flex-start;
             flex-wrap: wrap;
-            gap: 20px;
-            margin-bottom: 24px;
-            padding-bottom: 24px;
+            gap: 12px;
+            margin-bottom: 12px;
+            padding-bottom: 12px;
             border-bottom: 1px solid #e0e0e0;
         }
 
@@ -388,15 +388,15 @@
         .stock-details {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-            gap: 12px;
-            margin-bottom: 24px;
+            gap: 8px;
+            margin-bottom: 12px;
         }
 
         .detail-item {
             background: #fff;
             border: 1px solid #e0e0e0;
-            padding: 14px;
-            border-radius: 10px;
+            padding: 10px;
+            border-radius: 8px;
         }
 
         .detail-label {
@@ -413,12 +413,12 @@
 
         .news-section {
             border-top: 1px solid #e0e0e0;
-            padding-top: 24px;
+            padding-top: 12px;
         }
 
         .chart-section {
-            margin-bottom: 24px;
-            padding-bottom: 24px;
+            margin-bottom: 12px;
+            padding-bottom: 12px;
             border-bottom: 1px solid #e0e0e0;
         }
 
@@ -426,9 +426,9 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            margin-bottom: 16px;
+            margin-bottom: 10px;
             flex-wrap: wrap;
-            gap: 12px;
+            gap: 8px;
         }
 
         .chart-header h3 {
@@ -488,8 +488,8 @@
         .news-header {
             display: flex;
             align-items: center;
-            gap: 10px;
-            margin-bottom: 16px;
+            gap: 8px;
+            margin-bottom: 10px;
             flex-wrap: wrap;
         }
 
@@ -718,7 +718,7 @@
         }
 
         .price-history-container {
-            margin-top: 16px;
+            margin-top: 10px;
         }
 
         .price-history-container.collapsed {
@@ -729,9 +729,9 @@
             background: #fff;
             border: 1px solid #e0e0e0;
             border-radius: 12px;
-            padding: 16px;
-            margin-bottom: 16px;
-            height: 250px;
+            padding: 12px;
+            margin-bottom: 10px;
+            height: 220px;
         }
 
         .price-table-wrapper {
@@ -1430,7 +1430,7 @@
             
             try {
                 // Use Alpha Vantage API for daily prices
-                const ALPHA_VANTAGE_KEY = 'R760L61D4G26M6E6'; // Replace with your free API key from alphavantage.co
+                const ALPHA_VANTAGE_KEY = 'R760L61D4G26M6E6'; // Alpha Vantage API key
                 const response = await fetch(`https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=${symbol}&outputsize=compact&apikey=${ALPHA_VANTAGE_KEY}`);
                 const data = await response.json();
                 
